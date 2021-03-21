@@ -1,0 +1,75 @@
+.v-resize-bar {
+  position: absolute;
+  &.v-bar-bottom {
+    z-index: 99;
+    bottom: -5px;
+    left: 0;
+    width: 100%;
+    height: 10px;
+    cursor: n-resize;
+    background: orange;
+  }
+  &.v-bar-top {
+    z-index: 99;
+    top: -5px;
+    left: 0;
+    width: 100%;
+    height: 10px;
+    cursor: n-resize;
+    background: orange;
+  }
+  &.v-bar-right {
+    z-index: 99;
+    right: -5px;
+    top: 0;
+    height: 100%;
+    width: 10px;
+    cursor: w-resize;
+    background: orange;
+  }
+  &.v-bar-left {
+    z-index: 99;
+    left: -5px;
+    top: 0;
+    height: 100%;
+    width: 10px;
+    cursor: w-resize;
+    background: orange;
+  }
+  &.v-bar-rb {
+    z-index: 100;
+    bottom: -5px;
+    right: -5px;
+    width: 10px;
+    height: 10px;
+    cursor: se-resize;
+    background: blue;
+  }
+  &.v-bar-lb {
+    z-index: 100;
+    bottom: -5px;
+    left: -5px;
+    width: 10px;
+    height: 10px;
+    cursor: sw-resize;
+    background: blue;
+  }
+  &.v-bar-lt {
+    z-index: 100;
+    top: -5px;
+    left: -5px;
+    width: 10px;
+    height: 10px;
+    cursor: nw-resize;
+    background: blue;
+  }
+  &.v-bar-rt {
+    z-index: 100;
+    top: -5px;
+    right: -5px;
+    width: 10px;
+    height: 10px;
+    cursor: ne-resize;
+    background: blue;
+  }
+}
