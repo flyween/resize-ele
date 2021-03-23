@@ -6,6 +6,7 @@ class resizeBox {
     this.el = el
     this.options = opts || {}
     this.ready = false
+    this.changeReady = false
     this.pressingBarName = ''
     this.mousePos = {
       x: 0,
@@ -62,22 +63,22 @@ class resizeBox {
       this.containerStyle.width,
       this.options.minWidth,
       'min'
-    )
+    ).value
     adjustWidth = this.getBoundaryValue(
       adjustWidth,
       this.options.maxWidth,
       'max'
-    )
+    ).value
     adjustHeight = this.getBoundaryValue(
       this.containerStyle.height,
       this.options.minHeight,
       'min'
-    )
+    ).value
     adjustHeight = this.getBoundaryValue(
       adjustHeight,
       this.options.maxHeight,
       'max'
-    )
+    ).value
     this.el.style.width = adjustWidth + 'px'
     this.el.style.height = adjustHeight + 'px'
   }
@@ -133,6 +134,7 @@ class resizeBox {
   mouseDown(e) {
     if (this.isMobile && e.target.className.indexOf('v-resize-bar') < 0) return
     this.ready = true
+    this.changeReady = false
     this.pressingBarName = e.target.getAttribute('data-pos')
     if (this.isMobile) {
       this.mousePos.x = e.touches[0].pageX
@@ -154,23 +156,33 @@ class resizeBox {
   }
   getBoundaryValue(val, limitVal, compare) {
     let res = 0
+    let swing = 0
     if (compare === 'min') {
       if (limitVal !== undefined && val < limitVal) {
+        swing = val - limitVal
         res = limitVal
-        this.ready = false
+        if (swing < 0) {
+          this.changeReady = true
+        }
       } else {
         res = val
       }
     }
     if (compare === 'max') {
       if (limitVal !== undefined && val > limitVal) {
+        swing = val - limitVal
         res = limitVal
-        this.ready = false
+        if (swing < 0) {
+          this.changeReady = true
+        }
       } else {
         res = val
       }
     }
-    return res
+    return {
+      value: res,
+      swing: swing
+    }
   }
   calcMove(e) {
     if (!this.ready) return
@@ -186,46 +198,48 @@ class resizeBox {
         : 0
     this.mousePos.x = newX
     this.mousePos.y = newY
+    let xSwing = 0
+    let ySwing = 0
 
     let calcedWidth = this.containerStyle.width + rangeX
     let calcedHeight = this.containerStyle.height + rangeY
-    let calcedLeft = this.containerStyle.left + rangeX
-    let calcedTop = this.containerStyle.top + rangeY
-
     if ('left,lt,lb'.indexOf(this.pressingBarName) > -1) {
       calcedWidth = this.containerStyle.width - rangeX
     }
     if ('top,lt,rt'.indexOf(this.pressingBarName) > -1) {
       calcedHeight = this.containerStyle.height - rangeY
     }
-
+    // console.log(rangeX)
+    let res
     if (this.options.minWidth) {
-      calcedWidth = this.getBoundaryValue(
-        calcedWidth,
-        this.options.minWidth,
-        'min'
-      )
+      res = this.getBoundaryValue(calcedWidth, this.options.minWidth, 'min')
+      calcedWidth = res.value
+      xSwing = res.swing
     }
     if (this.options.maxWidth) {
-      calcedWidth = this.getBoundaryValue(
-        calcedWidth,
-        this.options.maxWidth,
-        'max'
-      )
+      res = this.getBoundaryValue(calcedWidth, this.options.maxWidth, 'max')
+      calcedWidth = res.value
+      xSwing = res.swing
     }
     if (this.options.minHeight) {
-      calcedHeight = this.getBoundaryValue(
-        calcedHeight,
-        this.options.minHeight,
-        'min'
-      )
+      res = this.getBoundaryValue(calcedHeight, this.options.minHeight, 'min')
+      calcedHeight = res.value
+      ySwing = res.swing
     }
     if (this.options.maxHeight) {
-      calcedHeight = this.getBoundaryValue(
-        calcedHeight,
-        this.options.maxHeight,
-        'max'
-      )
+      res = this.getBoundaryValue(calcedHeight, this.options.maxHeight, 'max')
+      calcedHeight = res.value
+      ySwing = res.swing
+    }
+
+    // intLeft + width + rangeX / intTop + height + rangeY = initRat
+    // rangeY = (intLeft + width + rangeX) / initRat - intTop - height
+
+    let calcedLeft = this.containerStyle.left + rangeX
+    let calcedTop = this.containerStyle.top + rangeY
+    if (this.changeReady) {
+      calcedLeft = calcedLeft + xSwing
+      calcedTop = calcedTop + ySwing
     }
 
     if (this.options.keepRatio) {
@@ -237,8 +251,26 @@ class resizeBox {
       }
 
       if (this.pressingBarName === 'lt') {
-        this.el.style.top = calcedTop + 'px'
         this.el.style.left = calcedLeft + 'px'
+        calcedHeight = Math.floor(calcedWidth / this.initialRatio)
+
+        let rangeTop = Math.floor(
+          (this.containerStyle.left + this.containerStyle.width + rangeX) /
+            this.initialRatio -
+            calcedHeight
+        )
+        if (this.changeReady) {
+          rangeTop = Math.floor(
+            (this.containerStyle.left +
+              this.containerStyle.width +
+              rangeX +
+              xSwing) /
+              this.initialRatio -
+              calcedHeight
+          )
+        }
+        console.log(rangeTop)
+        this.el.style.top = rangeTop + 'px'
       }
 
       if (this.pressingBarName === 'top' || this.pressingBarName === 'rt') {
@@ -284,6 +316,9 @@ class resizeBox {
     }
 
     this.getComputedStyle()
+    if (this.changeReady) {
+      this.ready = false
+    }
   }
   mouseMoving(e) {
     if (this.ready) {
