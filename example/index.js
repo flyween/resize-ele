@@ -13,5 +13,7 @@ new resize(document.querySelector('.main-box2'), {
   bars: ['bottom', 'right', 'rb', 'rt', 'lb', 'lt', 'left', 'top'],
   keepRatio: true,
   minWidth: 400,
-  minHeight: 42
+  maxWidth: 500,
+  minHeight: 42,
+  maxHeight: 42
 })

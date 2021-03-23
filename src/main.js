@@ -56,6 +56,8 @@ class resizeBox {
       this.genSideHandler()
     }
 
+    this.initRatio()
+
     // make ele > minSize && < maxSize
     let adjustWidth = this.containerStyle.width
     let adjustHeight = this.containerStyle.height
@@ -186,6 +188,12 @@ class resizeBox {
   }
   calcMove(e) {
     if (!this.ready) return
+    console.log(this.options.minHeight, this.options.maxHeight)
+    if (
+      this.options.minWidth === this.options.maxWidth ||
+      this.options.minHeight === this.options.maxHeight
+    )
+      return
     const newX = this.isMobile ? e.touches[0].pageX : e.clientX
     const newY = this.isMobile ? e.touches[0].pageY : e.clientY
     const rangeX =
@@ -257,7 +265,7 @@ class resizeBox {
         let rangeTop = Math.floor(
           (this.containerStyle.left + this.containerStyle.width + rangeX) /
             this.initialRatio -
-            calcedHeight
+            this.containerStyle.height
         )
         if (this.changeReady) {
           rangeTop = Math.floor(
@@ -266,7 +274,7 @@ class resizeBox {
               rangeX +
               xSwing) /
               this.initialRatio -
-              calcedHeight
+              this.containerStyle.height
           )
         }
         console.log(rangeTop)
