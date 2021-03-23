@@ -6,6 +6,7 @@
   "browser": "dist/resize-ele.umd.js",
   "dependencies": {
   },
+  "homepage": "https://flyween.github.io/resize-ele/",
   "devDependencies": {
     "@babel/core": "^7.13.10",
     "@babel/plugin-external-helpers": "^7.12.13",
